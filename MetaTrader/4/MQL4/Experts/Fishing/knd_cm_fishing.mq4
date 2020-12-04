@@ -1,24 +1,24 @@
 //+------------------------------------------------------------------+
-//|                               Copyright © 2016, Хлыстов Владимир |
+//|                              Copyright © 2016, Khlystov Vladimir |
 //|                                                cmillion@narod.ru |
 //+------------------------------------------------------------------+
 #property copyright "Copyright © 2016, http://cmillion.ru"
 #property link      "cmillion@narod.ru"
 #property strict
-#property description "Советник выставляет ордера после прохождения ценой заданного расстояния. 1шаг вверх - продает, 1 шаг вниз - покупает"
-#property description "Таким образом появляется сеть, которую Вы закрываете руками с помощью кнопок советника или отдаете прибыль на усмотрение самого советника."
-#property description "Советник полуавтоматический, поэтому его тестирование должно проводится только в режиме визуализации. Оптимизация для данного советника не нужна"
+#property description "The Expert Advisor places orders after the price has passed the specified distance. 1 step up - sells, 1 step down - buys"
+#property description "Thus, a network appears that you close with your hands using the buttons of the advisor or give the profit at the discretion of the advisor itself."
+#property description "The Expert Advisor is semi-automatic, so its testing should be carried out only in visualization mode. Optimization for this EA is not needed"
 //--------------------------------------------------------------------
-extern bool    buy                  = true;        //разрешить buy 
-extern bool    sell                 = true;        //разрешить sell 
-extern int     StepB                = 10;          //шаг Buy ордеров
-extern int     StepS                = 10;          //шаг Sell ордеров
-extern double  CloseProfitB         = 100;           //закрывать buy по суммарному профиту
-extern double  CloseProfitS         = 100;           //закрывать sell по суммарному профиту
-extern double  CloseProfit          = 10;           //закрывать все по суммарному профиту
-extern double  LotB                 = 0.10;        //объем Buy ордеров 
-extern double  LotS                 = 0.10;        //объем Sell ордеров 
-extern int     slippage             = 5;          // проскальзывание
+extern bool    buy                  = true;        //allow buy
+extern bool    sell                 = true;        //allow sell 
+extern int     StepB                = 10;          //step of Buy orders
+extern int     StepS                = 10;          ///step of Sell orders
+extern double  CloseProfitB         = 100;         //close buy by total profit
+extern double  CloseProfitS         = 100;         //close sell by total profit
+extern double  CloseProfit          = 10;          //close everything according to the total profit
+extern double  LotB                 = 0.10;        //volume of Buy orders
+extern double  LotS                 = 0.10;        //volume of Sell orders
+extern int     slippage             = 5;           //slippage
 extern int     Magic                = 1;
 //--------------------------------------------------------------------
 double STOPLEVEL;
@@ -36,16 +36,16 @@ int OnInit()
    Level=Bid;
    val = " "+AccountCurrency();
    RectLabelCreate(0,"rl BalanceW",0,195,20,195,90);
-   DrawLABEL("IsTradeAllowed",Text(LANGUAGE,"Торговля","Trade"),100,30,clrRed,ANCHOR_CENTER);
+   DrawLABEL("IsTradeAllowed",Text(LANGUAGE,"Trade","Trade"),100,30,clrRed,ANCHOR_CENTER);
    RectLabelCreate(0,"rl Close Profit",0,195,103,195,90);
-   DrawLABEL("rl CloseProfit",Text(LANGUAGE,"Закрытие по прибыли","Closing profit"),100,115,clrBlack,ANCHOR_CENTER);
+   DrawLABEL("rl CloseProfit",Text(LANGUAGE,"Close on profit","Closing profit"),100,115,clrBlack,ANCHOR_CENTER);
    ButtonCreate(0,"kn close Buy" , 0,130,125,40,20,"X buy");
    ButtonCreate(0,"kn close Sell" ,0,130,147,40,20,"X sell");
-   ButtonCreate(0,"kn close All",0,130,169,40,20,Text(LANGUAGE,"закр.","X all"));
+   ButtonCreate(0,"kn close All",0,130,169,40,20,Text(LANGUAGE,"close all","X all"));
 
-   ButtonCreate(0,"kn Buy Auto" , 0,40,125,35,20,Text(LANGUAGE,"авто","auto"));
-   ButtonCreate(0,"kn Sell Auto" ,0,40,147,35,20,Text(LANGUAGE,"авто","auto"));
-   ButtonCreate(0,"kn All Auto",0,40,169,35,20,Text(LANGUAGE,"авто","auto"));
+   ButtonCreate(0,"kn Buy Auto" , 0,40,125,35,20,Text(LANGUAGE,"auto","auto"));
+   ButtonCreate(0,"kn Sell Auto" ,0,40,147,35,20,Text(LANGUAGE,"auto","auto"));
+   ButtonCreate(0,"kn All Auto",0,40,169,35,20,Text(LANGUAGE,"auto","auto"));
    
    GV_kn_CB=StringConcatenate(GVn," Close Buy Auto");
    if (GlobalVariableCheck(GV_kn_CB)) ObjectSetInteger(0,"kn Buy Auto",OBJPROP_STATE,true);
@@ -68,14 +68,14 @@ int OnInit()
    EditCreate(0,"rl Sell Auto" ,0,90,147,50,20,DoubleToString(CloseProfitS,2),"Arial",8,ALIGN_CENTER,false);
    EditCreate(0,"rl All Auto",0,90,169,50,20,DoubleToString(CloseProfit,2) ,"Arial",8,ALIGN_CENTER,false);
 
-   ButtonCreate(0,"kn Clear",0,75,25,70,20,Text(LANGUAGE,"Очистка","Clear") ,"Times New Roman",8, clrBlack,clrGray,clrLightGray,clrNONE,false,CORNER_RIGHT_LOWER);
+   ButtonCreate(0,"kn Clear",0,75,25,70,20,Text(LANGUAGE,"Clear","Clear") ,"Times New Roman",8, clrBlack,clrGray,clrLightGray,clrNONE,false,CORNER_RIGHT_LOWER);
    RectLabelCreate(0,"rl Buy",0,190,125,60,20);
    RectLabelCreate(0,"rl Sell",0,190,147,60,20);
    RectLabelCreate(0,"rl All",0,190,169,60,20);
 
-   DrawLABEL("rl Balance",Text(LANGUAGE,"Баланс","Balance"),190,50,clrBlack,ANCHOR_LEFT);
-   DrawLABEL("rl Equity",Text(LANGUAGE,"Эквити","Equity"),190,70,clrBlack,ANCHOR_LEFT);
-   DrawLABEL("rl FreeMargin",Text(LANGUAGE,"Средства","FreeMargin"),190,90,clrBlack,ANCHOR_LEFT);
+   DrawLABEL("rl Balance",Text(LANGUAGE,"Balance","Balance"),190,50,clrBlack,ANCHOR_LEFT);
+   DrawLABEL("rl Equity",Text(LANGUAGE,"Equity","Equity"),190,70,clrBlack,ANCHOR_LEFT);
+   DrawLABEL("rl FreeMargin",Text(LANGUAGE,"FreeMargin","FreeMargin"),190,90,clrBlack,ANCHOR_LEFT);
    
    DrawLABEL("rl val Balance",val,5,50,clrBlack);
    DrawLABEL("rl val Equity",val,5,70,clrBlack);
@@ -83,9 +83,9 @@ int OnInit()
    
    int Y=192;
    RectLabelCreate(0,"rl Step Lot",0,195,Y,195,90);Y+=15;
-   DrawLABEL("rl StepLot ",Text(LANGUAGE,"Настройки шага и лота","Settings"),100,Y,clrBlack,ANCHOR_CENTER);Y+=20;
-   DrawLABEL("rl Step ",Text(LANGUAGE,"Шаг","Step"),120,Y,clrBlack,ANCHOR_CENTER);
-   DrawLABEL("rl Лот ",Text(LANGUAGE,"Лот","Lot"),170,Y,clrBlack,ANCHOR_CENTER);Y+=10;
+   DrawLABEL("rl StepLot ",Text(LANGUAGE,"Step and lot settings","Settings"),100,Y,clrBlack,ANCHOR_CENTER);Y+=20;
+   DrawLABEL("rl Step ",Text(LANGUAGE,"Step","Step"),120,Y,clrBlack,ANCHOR_CENTER);
+   DrawLABEL("rl Lot ",Text(LANGUAGE,"Lot","Lot"),170,Y,clrBlack,ANCHOR_CENTER);Y+=10;
    
    GV_LB=StringConcatenate(GVn," Lot Buy");
    if (GlobalVariableCheck(GV_LB)) LotB = GlobalVariableGet(GV_LB);
@@ -98,10 +98,10 @@ int OnInit()
    
    EditCreate(0,"rl Buy Step" ,0,139,Y,40,20,IntegerToString(StepB),"Arial",8,ALIGN_CENTER,false);
    EditCreate(0,"rl Buy Lot"  ,0,190,Y,40,20,DoubleToString(LotB,2),"Arial",8,ALIGN_CENTER,false);
-   ButtonCreate(0,"kn open Buy" , 0,85,Y,80,20,Text(LANGUAGE,"Купить","Open Buy"));Y+=20;
+   ButtonCreate(0,"kn open Buy" , 0,85,Y,80,20,Text(LANGUAGE,"Buy","Open Buy"));Y+=20;
    EditCreate(0,"rl Sell Step",0,139,Y,40,20,IntegerToString(StepS),"Arial",8,ALIGN_CENTER,false);
    EditCreate(0,"rl Sell Lot" ,0,190,Y,40,20,DoubleToString(LotS,2),"Arial",8,ALIGN_CENTER,false);
-   ButtonCreate(0,"kn open Sell" ,0,85,Y,80,20,Text(LANGUAGE,"Продать","Open Sell"));
+   ButtonCreate(0,"kn open Sell" ,0,85,Y,80,20,Text(LANGUAGE,"Sell","Open Sell"));
    GV_kn_B=StringConcatenate(GVn," Buy");
    if (GlobalVariableCheck(GV_kn_B)) buy = GlobalVariableGet(GV_kn_B); else GlobalVariableSet(GV_kn_B,buy);
    
@@ -119,10 +119,10 @@ void OnTick()
 {
    if (!IsTradeAllowed()) 
    {
-      DrawLABEL("IsTradeAllowed",Text(LANGUAGE,"Торговля запрещена","Trade is disabled"),100,30,clrRed,ANCHOR_CENTER);
+      DrawLABEL("IsTradeAllowed",Text(LANGUAGE,"Trading is disabled","Trade is disabled"),100,30,clrRed,ANCHOR_CENTER);
       return;
    }
-   else DrawLABEL("IsTradeAllowed",Text(LANGUAGE,"Торговля разрешена","Trade is enabled"),100,30,clrGreen,ANCHOR_CENTER);
+   else DrawLABEL("IsTradeAllowed",Text(LANGUAGE,"Trade is enabled","Trade is enabled"),100,30,clrGreen,ANCHOR_CENTER);
    STOPLEVEL=MarketInfo(Symbol(),MODE_STOPLEVEL);
    LotB=StringToDouble(ObjectGetString(0,"rl Buy Lot",OBJPROP_TEXT));
    LotS=StringToDouble(ObjectGetString(0,"rl Sell Lot",OBJPROP_TEXT));
@@ -276,7 +276,7 @@ void OnTick()
       if (buy && AccountFreeMarginCheck(Symbol(),OP_BUY,LotB)>0)
       {
          if (OrderSend(Symbol(),OP_BUY, LotB,NormalizeDouble(Ask,Digits),slippage,0,0,NULL,Magic,0,clrNONE)!=-1) Level=Bid;
-         else Print("Ошибка открытия ордера <<",Error(GetLastError()),">>  ");
+         else Print("Order opening error <<",Error(GetLastError()),">>  ");
       } 
       else Level=Bid;
    }
@@ -285,7 +285,7 @@ void OnTick()
       if (sell && AccountFreeMarginCheck(Symbol(),OP_SELL,LotS)>0)
       {
          if (OrderSend(Symbol(),OP_SELL,LotS,NormalizeDouble(Bid,Digits),slippage,0,0,NULL,Magic,0,clrNONE)!=-1) Level=Bid;
-         else Print("Ошибка открытия ордера <<",Error(GetLastError()),">>  ");
+         else Print("Order opening error <<",Error(GetLastError()),">>  ");
       } 
       else Level=Bid;
    }
@@ -364,7 +364,7 @@ bool CloseAll(int tip)
                      if (IsTradeContextBusy()) Sleep(2000);
                      continue;
                   }
-                  Print("Ошибка ",err," закрытия ордера N ",OrderTicket(),"     ",TimeToStr(TimeCurrent(),TIME_SECONDS));
+                  Print("Error ",err," close order N ",OrderTicket(),"     ",TimeToStr(TimeCurrent(),TIME_SECONDS));
                }
             }
          }
@@ -385,7 +385,7 @@ bool CloseAll(int tip)
       nn++;
       if (nn>10) 
       {
-         Alert(Symbol()," Не удалось закрыть все сделки, осталось еще ",n);
+         Alert(Symbol()," Failed to close all deals, there are still ",n);
          return(0);
       }
       Sleep(1000);
@@ -394,21 +394,21 @@ bool CloseAll(int tip)
    return(1);
 }
 //--------------------------------------------------------------------
-bool ButtonCreate(const long              chart_ID=0,               // ID графика
-                  const string            name="Button",            // имя кнопки
-                  const int               sub_window=0,             // номер подокна
-                  const long               x=0,                      // координата по оси X
-                  const long               y=0,                      // координата по оси Y
-                  const int               width=50,                 // ширина кнопки
-                  const int               height=18,                // высота кнопки
-                  const string            text="Button",            // текст
-                  const string            font="Arial",             // шрифт
-                  const int               font_size=8,             // размер шрифта
-                  const color             clr=clrBlack,               // цвет текста
-                  const color             clrON=clrLightGray,            // цвет фона
-                  const color             clrOFF=clrLightGray,          // цвет фона
-                  const color             border_clr=clrNONE,       // цвет границы
-                  const bool              state=false,       // цвет границы
+bool ButtonCreate(const long              chart_ID=0,               // Chart ID
+                  const string            name="Button",            // button name
+                  const int               sub_window=0,             // subwindow number
+                  const long              x=0,                      // X-coordinate
+                  const long              y=0,                      // y-coordinate
+                  const int               width=50,                 // button width
+                  const int               height=18,                // button height
+                  const string            text="Button",            // text
+                  const string            font="Arial",             // font
+                  const int               font_size=8,              // font size
+                  const color             clr=clrBlack,             // text color
+                  const color             clrON=clrLightGray,       // background color
+                  const color             clrOFF=clrLightGray,      // background color
+                  const color             border_clr=clrNONE,       // border color
+                  const bool              state=false,              // border color
                   const ENUM_BASE_CORNER  CORNER=CORNER_RIGHT_UPPER)
   {
    if (ObjectFind(chart_ID,name)==-1)
@@ -437,21 +437,21 @@ bool ButtonCreate(const long              chart_ID=0,               // ID график
    return(true);
 }
 //--------------------------------------------------------------------
-bool RectLabelCreate(const long             chart_ID=0,               // ID графика
-                     const string           name="RectLabel",         // имя метки
-                     const int              sub_window=0,             // номер подокна
-                     const long              x=0,                     // координата по оси X
-                     const long              y=0,                     // координата по оси y
-                     const int              width=50,                 // ширина
-                     const int              height=18,                // высота
-                     const color            back_clr=clrWhite,        // цвет фона
-                     const color            clr=clrBlack,             // цвет плоской границы (Flat)
-                     const ENUM_LINE_STYLE  style=STYLE_SOLID,        // стиль плоской границы
-                     const int              line_width=1,             // толщина плоской границы
-                     const bool             back=false,               // на заднем плане
-                     const bool             selection=false,          // выделить для перемещений
-                     const bool             hidden=true,              // скрыт в списке объектов
-                     const long             z_order=0)                // приоритет на нажатие мышью
+bool RectLabelCreate(const long             chart_ID=0,               // Chart ID
+                     const string           name="RectLabel",         // label name
+                     const int              sub_window=0,             // subwindow number
+                     const long              x=0,                     // X-coordinate
+                     const long              y=0,                     // Y-coordinate
+                     const int              width=50,                 // width
+                     const int              height=18,                // height
+                     const color            back_clr=clrWhite,        // background color
+                     const color            clr=clrBlack,             // flat border color
+                     const ENUM_LINE_STYLE  style=STYLE_SOLID,        // flat border style
+                     const int              line_width=1,             // flat border thickness
+                     const bool             back=false,               // on the background
+                     const bool             selection=false,          // allocate for movement
+                     const bool             hidden=true,              // hidden in the list of objects
+                     const long             z_order=0)                // priority on mouse click
   {
    ResetLastError();
    if (ObjectFind(chart_ID,name)==-1)
@@ -481,66 +481,66 @@ string Error(int code)
 {
    switch(code)
    {
-      case 0:   return("Нет ошибок");
-      case 1:   return("Нет ошибки, но результат неизвестен");                            
-      case 2:   return("Общая ошибка");                                                   
-      case 3:   return("Неправильные параметры");                                         
-      case 4:   return("Торговый сервер занят");                                          
-      case 5:   return("Старая версия клиентского терминала");                            
-      case 6:   return("Нет связи с торговым сервером");                                  
-      case 7:   return("Недостаточно прав");                                              
-      case 8:   return("Слишком частые запросы");                                         
-      case 9:   return("Недопустимая операция нарушающая функционирование сервера");      
-      case 64:  return("Счет заблокирован");                                              
-      case 65:  return("Неправильный номер счета");                                       
-      case 128: return("Истек срок ожидания совершения сделки");                          
-      case 129: return("Неправильная цена");                                              
-      case 130: return("Неправильные стопы");                                             
-      case 131: return("Неправильный объем");                                             
-      case 132: return("Рынок закрыт");                                                   
-      case 133: return("Торговля запрещена");                                               
-      case 134: return("Недостаточно денег для совершения операции");                     
-      case 135: return("Цена изменилась");                                                
-      case 136: return("Нет цен");                                                        
-      case 137: return("Брокер занят");                                                   
-      case 138: return("Новые цены");                                                     
-      case 139: return("Ордер заблокирован и уже обрабатывается");                        
-      case 140: return("Разрешена только покупка");                                       
-      case 141: return("Слишком много запросов");                                         
-      case 145: return("Модификация запрещена, так как ордер слишком близок к рынку");    
-      case 146: return("Подсистема торговли занята");                                     
-      case 147: return("Использование даты истечения ордера запрещено брокером");         
-      case 148: return("Количество открытых и отложенных ордеров достигло предела, установленного брокером.");
-      default:   return(StringConcatenate("Ошибка ",code," неизвестна "));
+      case 0:   return("No mistakes");
+      case 1:   return("No error, but unknown result");                            
+      case 2:   return("General error");                                                   
+      case 3:   return("Invalid parameters");                                         
+      case 4:   return("Trade server busy");                                          
+      case 5:   return("Old version of the client terminal");                            
+      case 6:   return("No connection with the trade server");                                  
+      case 7:   return("Not enough rights");                                              
+      case 8:   return("Too frequent requests");                                         
+      case 9:   return("Invalid operation disrupting server operation");      
+      case 64:  return("Account blocked");                                              
+      case 65:  return("Invalid account number");                                       
+      case 128: return("The waiting period has expired");                          
+      case 129: return("Wrong price");                                              
+      case 130: return("Wrong feet");                                             
+      case 131: return("Incorrect volume");                                             
+      case 132: return("Market closed");                                                   
+      case 133: return("Trading is prohibited");                                               
+      case 134: return("Not enough money to complete the transaction");                     
+      case 135: return("Price has changed");                                                
+      case 136: return("No prices");                                                        
+      case 137: return("Broker is busy");                                                   
+      case 138: return("New prices");                                                     
+      case 139: return("The order is blocked and is already being processed");                        
+      case 140: return("Only purchase allowed");                                       
+      case 141: return("Too many requests");                                         
+      case 145: return("Modification is prohibited because the order is too close to the market");    
+      case 146: return("Trading subsystem is busy");                                     
+      case 147: return("The use of the order expiration date is prohibited by the broker");         
+      case 148: return("The number of open and pending orders has reached the limit set by the broker.");
+      default:   return(StringConcatenate("Mistake ",code," unknown "));
    }
 }
 //--------------------------------------------------------------------
-bool EditCreate(const long             chart_ID=0,               // ID графика 
-                const string           name="Edit",              // имя объекта 
-                const int              sub_window=0,             // номер подокна 
-                const int              x=0,                      // координата по оси X 
-                const int              y=0,                      // координата по оси Y 
-                const int              width=50,                 // ширина 
-                const int              height=18,                // высота 
-                const string           text="Text",              // текст 
-                const string           font="Arial",             // шрифт 
-                const int              font_size=8,             // размер шрифта 
-                const ENUM_ALIGN_MODE  align=ALIGN_RIGHT,       // способ выравнивания 
-                const bool             read_only=true,           // возможность редактировать 
-                const ENUM_BASE_CORNER corner=CORNER_RIGHT_UPPER, // угол графика для привязки 
-                const color            clr=clrBlack,             // цвет текста 
-                const color            back_clr=clrWhite,        // цвет фона 
-                const color            border_clr=clrNONE,       // цвет границы 
-                const bool             back=false,               // на заднем плане 
-                const bool             selection=false,          // выделить для перемещений 
-                const bool             hidden=true,              // скрыт в списке объектов 
-                const long             z_order=0)                // приоритет на нажатие мышью 
+bool EditCreate(const long             chart_ID=0,                  // Chart ID
+                const string           name="Edit",                 // object name
+                const int              sub_window=0,                // subwindow number
+                const int              x=0,                         // X-coordinate
+                const int              y=0,                         // y-coordinate
+                const int              width=50,                    // width
+                const int              height=18,                   // height
+                const string           text="Text",                 // text
+                const string           font="Arial",                // font
+                const int              font_size=8,                 // font size
+                const ENUM_ALIGN_MODE  align=ALIGN_RIGHT,           // alignment method
+                const bool             read_only=true,              // ability to edit
+                const ENUM_BASE_CORNER corner=CORNER_RIGHT_UPPER,   // corner of the graph to anchor 
+                const color            clr=clrBlack,                // text color
+                const color            back_clr=clrWhite,           // background color
+                const color            border_clr=clrNONE,          // border color
+                const bool             back=false,                  // on the background
+                const bool             selection=false,             // allocate for movement
+                const bool             hidden=true,                 // hidden in the list of objects
+                const long             z_order=0)                   // priority on mouse click
   { 
    ResetLastError(); 
    if(!ObjectCreate(chart_ID,name,OBJ_EDIT,sub_window,0,0)) 
      { 
       Print(__FUNCTION__, 
-            ": не удалось создать объект ",name,"! Код ошибки = ",GetLastError()); 
+            ": failed to create object ",name,"! Error code = ",GetLastError()); 
       return(false); 
      } 
    ObjectSetInteger(chart_ID,name,OBJPROP_XDISTANCE,x); 
