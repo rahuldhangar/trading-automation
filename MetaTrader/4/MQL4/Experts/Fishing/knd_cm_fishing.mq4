@@ -4,6 +4,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright © 2016, http://cmillion.ru"
 #property link      "cmillion@narod.ru"
+#property version   "1.01"
 #property strict
 #property description "The Expert Advisor places orders after the price has passed the specified distance. 1 step up - sells, 1 step down - buys"
 #property description "Thus, a network appears that you close with your hands using the buttons of the advisor or give the profit at the discretion of the advisor itself."
