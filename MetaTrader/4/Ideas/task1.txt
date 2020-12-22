@@ -1,0 +1,46 @@
+I need an EA for MT4 platform that can do the following:
+
+
+Following criterias must be fulfilled for Buy entry:
+1) Previous candles close above Moving Average EMA
+2) MACD Yellow line crossover above Red Line and both lines must be below the 0 grey Line
+
+Upon above confirmation:
+1) Buy on next candle open
+2) Stop loss at recent down arrow fractal + number of pips set on Expert input properties
+3) Take profit at multiple of Stop loss in Expert input properties(Eg: Stop loss 10pips, take profit 20pips, multiple will be 2)
+4) Settings to turn on or off risk percentage per trade base on balance amount in Expert input properties(eg: 1% risk of balance)
+5) Settings to turn on or off for moving stop loss to breakeven when price reach a percentage of profit pips
+6) Settings to turn on or off trailing stop loss. Close trade when MACD yellow line crossover below red line.(Risk:Reward reaches 1:1, move stop loss to Breakeven. When Risk:Reward at 2:1, do nothing. When Risk:Reward reaches to 3:1, move to stop loss to 2:1 and continue trail.)
+7) Ignore opening position if price open below stop loss on next candle
+
+*When there are opened positions, take a new position if it fulfill the buy criteria.
+
+
+
+Following criterias must be fulfilled for Sell entry:
+1) Previous candles close Below Moving Average EMA
+2) MACD Yellow line crossover below Red Line and both lines must be above the 0 grey Line
+
+Upon above confirmation:
+1) Sell on next candle open
+2) Stop loss at recent up arrow fractal + number of pips set on Expert input properties
+3) Take profit at multiple of Stop loss in Expert input properties(Eg: Stop loss 10pips, take profit 20pips, multiple will be 2)
+4) Settings to turn on or off risk percentage per trade base on balance amount in Expert input properties(eg: 1% risk of balance)
+5) Settings to turn on or off for moving stop loss to breakeven when price reach a percentage of profit pips
+6) Settings to turn on or off trailing stop loss. Close trade when MACD yellow line crossover above red line.(Risk:Reward reaches 1:1, move stop loss to Breakeven. When Risk:Reward at 2:1, do nothing. When Risk:Reward reaches to 3:1, move to stop loss to 2:1 and continue trail.)
+7) Ignore opening position if price open below stop loss on next candle
+
+*When there are opened positions, take a new position if it fulfill the sell criteria.
+
+Need to have all the indicators parameters inside input properties.
+
+I will need to run this EA on multiple charts on the same mt4 platform so each chart will be standalone. There might be time where the same chart have multiple open positions as well.
+
+Indicators needed are:
+Fractal(Default MT4)
+Moving Average(Default MT4)
+MACD(Will be provided as this is different from default MACD)
+
+Job URL: https://www.mql5.com/en/job/136721
+Date: 22 Dec 2020
